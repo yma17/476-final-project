@@ -77,11 +77,10 @@ def read_raw_files():
     for game in game_corpus:
         corpus_file.write(game+'\n')
     corpus_file.close()
-    """
-
     game_dict_file = open('useful_data/game_dict.pickle', 'wb')
     pickle.dump(game_dict, game_dict_file)
     game_dict_file.close()
+    """
 
     return streamer_set, game_dict, game_corpus
 
@@ -144,6 +143,16 @@ def clean_game_names(game_dict, game_corpus):
 
         cleaned_dict[corrected_name][0].update(game_dict[name][0])
         cleaned_dict[corrected_name][1] += game_dict[name][1]
+
+    # print(len(cleaned_dict))
+
+    for name in cleaned_names:
+        if len(cleaned_dict[name][0]) == 1:  # if only one player has played a game
+            del cleaned_dict[name]
+        elif sum(cleaned_dict[name][1].values()) <= 12:  # if a game was never played for more than 1 hour overall
+            del cleaned_dict[name]
+
+    # print(len(cleaned_dict))
 
     cleaned_file = open('useful_data/cleaned_dict.pickle', 'wb')
     pickle.dump(cleaned_dict, cleaned_file)

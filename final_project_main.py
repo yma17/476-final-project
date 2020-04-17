@@ -34,15 +34,17 @@ def main(argv):
 
     # Simple test case
     # from collections import Counter
-    # streamer_set = {1, 2, 3}
+    # streamer_set = {1, 2, 3, 4}
     # game_dict = {"aaaa": [{1, 2}, Counter([1, 2])],
     #              "axxa": [{1, 3}, Counter([1, 1, 3])],
     #              "bbbb": [{2, 3}, Counter([2, 2, 3, 3])],
-    #              "cccc": [{1, 2, 3}, Counter([1, 1, 2, 2, 3, 3])]
+    #              "cccc": [{1, 2, 3}, Counter([1, 1, 2, 2, 3, 3])],
+    #              "z": [{4}, Counter({4, 4, 4, 4})]}
     # game_corpus = {"aaaa", "bbbb"}
 
     # Preprocess the data.
     cleaned_dict = clean_game_names(game_dict, game_corpus)
+    # print(cleaned_dict)
 
     # Perform community detection on the data.
     pass
