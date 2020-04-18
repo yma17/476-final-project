@@ -1,10 +1,11 @@
 """Contains functions to read and preprocess data"""
 
-import os
 import glob
 import csv
 import pickle
+import numpy as np
 from collections import Counter
+from itertools import combinations
 
 from spell_check import SpellCorrector
 
@@ -62,7 +63,6 @@ def read_raw_files():
             game = data_pt[2].lower()
             game_corpus.add(game)
 
-    """
     streamer_file = open('useful_data/streamer.txt', 'w+')
     for streamer in streamer_set:
         streamer_file.write(streamer+'\n')
@@ -77,10 +77,10 @@ def read_raw_files():
     for game in game_corpus:
         corpus_file.write(game+'\n')
     corpus_file.close()
+
     game_dict_file = open('useful_data/game_dict.pickle', 'wb')
     pickle.dump(game_dict, game_dict_file)
     game_dict_file.close()
-    """
 
     return streamer_set, game_dict, game_corpus
 
@@ -144,21 +144,61 @@ def clean_game_names(game_dict, game_corpus):
         cleaned_dict[corrected_name][0].update(game_dict[name][0])
         cleaned_dict[corrected_name][1] += game_dict[name][1]
 
-    # print(len(cleaned_dict))
-
+    # Perform some feature selection to eliminate least relevant games.
     for name in cleaned_names:
         if len(cleaned_dict[name][0]) == 1:  # if only one player has played a game
             del cleaned_dict[name]
         elif sum(cleaned_dict[name][1].values()) <= 12:  # if a game was never played for more than 1 hour overall
             del cleaned_dict[name]
 
-    # print(len(cleaned_dict))
-
     cleaned_file = open('useful_data/cleaned_dict.pickle', 'wb')
     pickle.dump(cleaned_dict, cleaned_file)
     cleaned_file.close()
 
     return cleaned_dict
+
+
+def construct_feature_space(streamer_set, cleaned_dict, method):
+    """Construct feature space for method."""
+
+    if method == "community":
+        # Feature space:
+        X = {}
+        for game, info in cleaned_dict.items():
+            streamer_comb = combinations(info[0], 2)
+            for comb in list(streamer_comb):
+                if comb not in X.keys():
+                    X[comb] = 0
+                X[comb] += 1
+
+        new_X = []
+        for comb, count in X.items():
+            new_X.append((comb[0], comb[1], count))
+
+        # with open('louvain_in.txt', 'w') as fp:
+        #     fp.write('\n'.join('%s %s %s' % x for x in new_X))
+
+        return new_X
+
+    elif method == "clustering":
+        # Generate streamer, list index associations for feature space construction.
+        streamer_indices = {}
+        for streamer in streamer_set:
+            streamer_indices[streamer] = len(streamer_indices)
+
+        # Generate game, list index associations for feature space construction.
+        game_indices = {}
+        for game in cleaned_dict.keys():
+            game_indices[game] = len(game_indices)
+
+        X = np.zeros((len(streamer_indices), len(game_indices)))
+        for game, info in cleaned_dict.items():
+            for streamer in info[0]:
+                X[streamer_indices[streamer]][game_indices[game]] = 1
+
+        # np.savetxt('clustering_in.txt', X, delimiter=',')
+
+        return X
 
 
 def get_replacement_dict():
