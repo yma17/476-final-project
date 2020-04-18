@@ -30,7 +30,7 @@ def main():
 	# Draw  edges
 	nx.draw_networkx_edges(G, pos, alpha=0.5)
 	plt.show()
-	
+	# plt.savefig("out.png")
 
 if __name__ == "__main__":
 	main()
