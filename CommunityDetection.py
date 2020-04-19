@@ -2,7 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.colors as mpcolors
 import community as community_louvain
-
+from CommunityAnalysis import get_most_played_game
 def main():
 	# Read in Graph: G
 	G = nx.Graph()
@@ -41,6 +41,7 @@ def main():
 		id = community[0]
 		size = community[1]
 		f_out.write("%s: size=%s\n"%(str(id), str(size) ) )
+		f_out.write("most played games: %s\n" % (get_most_played_game(community_dict[id], 3)) )
 		f_out.write("members:")
 		for member in community_dict[id]:
 			f_out.write(" " + str(member) )
@@ -64,28 +65,28 @@ def main():
 	# # plt.savefig("out.png")
 	########################################################################################################################################
 	
-	# Draw induced graph(node as community) #################################################################################################
-	Ginduced = community_louvain.induced_graph(partition, G, weight='weight')
-	# # Remove small commnity nodes (top15) -> (top10) -> (top5)
-	# top = 5
-	# for idx in range(len(order_list))[top:]:
-	# 	node_id = order_list[idx][0]
-	# 	Ginduced.remove_node(node_id)
+	# # Draw induced graph(node as community) #################################################################################################
+	# Ginduced = community_louvain.induced_graph(partition, G, weight='weight')
+	# # # Remove small commnity nodes (top15) -> (top10) -> (top5)
+	# # top = 5
+	# # for idx in range(len(order_list))[top:]:
+	# # 	node_id = order_list[idx][0]
+	# # 	Ginduced.remove_node(node_id)
 	
-	pos = nx.spring_layout(Ginduced)
-	color_list = list(mpcolors.cnames.values())
-	# Draw nodes
-	count = 0
-	for node in Ginduced.nodes :
-		nx.draw_networkx_nodes(Ginduced, pos, nodelist=[node], node_size = (20 + 2 * community_number_dict[node]), node_color = color_list[count], with_labels=True, font_weight='bold')
-		count += 1
-	# Draw labels
-	nx.draw_networkx_labels(Ginduced, pos, alpha=0.5)
-	# Draw  edges
-	nx.draw_networkx_edges(Ginduced, pos, alpha=0.5)
-	plt.show()
-	# plt.savefig("out.png")
-	##########################################################################################################################################
+	# pos = nx.spring_layout(Ginduced)
+	# color_list = list(mpcolors.cnames.values())
+	# # Draw nodes
+	# count = 0
+	# for node in Ginduced.nodes :
+	# 	nx.draw_networkx_nodes(Ginduced, pos, nodelist=[node], node_size = (20 + 2 * community_number_dict[node]), node_color = color_list[count], with_labels=True, font_weight='bold')
+	# 	count += 1
+	# # Draw labels
+	# nx.draw_networkx_labels(Ginduced, pos, alpha=0.5)
+	# # Draw  edges
+	# nx.draw_networkx_edges(Ginduced, pos, alpha=0.5)
+	# plt.show()
+	# # plt.savefig("out.png")
+	# ##########################################################################################################################################
 
 if __name__ == "__main__":
 	main()
