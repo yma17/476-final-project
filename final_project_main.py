@@ -48,6 +48,7 @@ def main(argv):
         cleaned_dict_file = open('useful_data/cleaned_dict.pickle', 'rb')
         cleaned_dict = pickle.load(cleaned_dict_file)
         cleaned_dict_file.close()
+        print("finish reading")
 
     # Simple test case
     # from collections import Counter

@@ -170,7 +170,7 @@ def construct_feature_space(streamer_set, cleaned_dict, method):
                 if comb not in X.keys():
                     X[comb] = 0
                 X[comb] += 1
-
+        print("Finish construct")
         new_X = []
         for comb, count in X.items():
             new_X.append((comb[0], comb[1], count))
