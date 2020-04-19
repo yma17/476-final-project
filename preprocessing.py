@@ -1,5 +1,6 @@
 """Contains functions to read and preprocess data"""
 
+import sys
 import glob
 import csv
 import pickle
@@ -37,9 +38,11 @@ def read_raw_files():
                 pt_data = data_pt.strip('\n').split('\t')
                 if len(pt_data) == 16:  # check if all fields are present in data point
                     streamer = pt_data[4]
-                    streamer_set.add(streamer)
                     game = pt_data[3].lower()
-                    if game != "-1":
+                    conc_viewers = int(pt_data[1])
+
+                    if game != "-1" and conc_viewers >= 100:
+                        streamer_set.add(streamer)
                         if game not in game_set:
                             game_set.add(game)
                             game_dict[game] = [set(), []]  # (set of streamers, list of stream occurrences)
@@ -47,9 +50,6 @@ def read_raw_files():
                         game_dict[game][1].append(streamer)
 
             i += 1
-            # print(str(num_data_pts) + " data points so far")
-            # print(str(len(streamer_set)) + " streamers so far")
-            # print(str(len(game_set)) + " games so far")
             print("Files read: " + str(i) + "/" + str(total_stream_files))  # output updates to user
 
     for game in game_dict.keys():
@@ -97,12 +97,13 @@ def read_useful_files():
 
     game_dict_file = open('useful_data/game_dict.pickle', 'rb')
     game_dict = pickle.load(game_dict_file)
+    game_dict_file.close()
 
     corpus_file = open('useful_data/corpus.txt', 'r')
     corpus_data = corpus_file.readlines()
     game_corpus = set()
     for game in corpus_data:
-        game_corpus.add(game)
+        game_corpus.add(game.strip('\n'))
     corpus_file.close()
 
     return streamer_set, game_dict, game_corpus
@@ -126,7 +127,7 @@ def clean_game_names(game_dict, game_corpus):
 
     # Spell correct remainder of names.
     for name in names_to_clean:
-        if i % 100 == 0:  # output updates to user
+        if i % 10 == 0:  # output updates to user
             print(str(i) + " names cleaned")
         i += 1
 
@@ -143,13 +144,6 @@ def clean_game_names(game_dict, game_corpus):
 
         cleaned_dict[corrected_name][0].update(game_dict[name][0])
         cleaned_dict[corrected_name][1] += game_dict[name][1]
-
-    # Perform some feature selection to eliminate least relevant games.
-    for name in cleaned_names:
-        if len(cleaned_dict[name][0]) == 1:  # if only one player has played a game
-            del cleaned_dict[name]
-        elif sum(cleaned_dict[name][1].values()) <= 12:  # if a game was never played for more than 1 hour overall
-            del cleaned_dict[name]
 
     cleaned_file = open('useful_data/cleaned_dict.pickle', 'wb')
     pickle.dump(cleaned_dict, cleaned_file)
@@ -175,28 +169,29 @@ def construct_feature_space(streamer_set, cleaned_dict, method):
         for comb, count in X.items():
             new_X.append((comb[0], comb[1], count))
 
-        # with open('louvain_in.txt', 'w') as fp:
+        # with open('useful_data/louvain_in.txt', 'w') as fp:
         #     fp.write('\n'.join('%s %s %s' % x for x in new_X))
 
         return new_X
 
-    elif method == "clustering":
+    elif method[:11] == "clustering_":
         # Generate streamer, list index associations for feature space construction.
         streamer_indices = {}
         for streamer in streamer_set:
-            streamer_indices[streamer] = len(streamer_indices)
+            streamer_indices[int(streamer)] = len(streamer_indices)
 
         # Generate game, list index associations for feature space construction.
         game_indices = {}
         for game in cleaned_dict.keys():
             game_indices[game] = len(game_indices)
 
-        X = np.zeros((len(streamer_indices), len(game_indices)))
+        X = np.zeros((len(streamer_indices), len(game_indices)), dtype=np.int8)
         for game, info in cleaned_dict.items():
             for streamer in info[0]:
-                X[streamer_indices[streamer]][game_indices[game]] = 1
+                X[streamer_indices[int(streamer)]][game_indices[game]] = 1
 
-        # np.savetxt('clustering_in.txt', X, delimiter=',')
+        # with open('useful_data/clustering_in.txt', 'w') as fp:
+        #     np.savetxt(fp, X, fmt='%1u')
 
         return X
 
