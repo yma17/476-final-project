@@ -1,6 +1,5 @@
 """Contains functions to read and preprocess data"""
 
-import sys
 import glob
 import csv
 import pickle
@@ -16,7 +15,6 @@ def read_raw_files():
 
     # Read in first seven days of streaming data.
     stream_data = glob.glob("raw_data/all-2015-02-0[1234567]*.txt")
-    # stream_data = glob.glob("raw_data/all-2015-02-01-00-0[05]-00.txt")
     total_stream_files = len(stream_data)
     i = 0  # keep track of files read
     num_data_pts = 0  # keep track of data points read
@@ -179,6 +177,10 @@ def construct_feature_space(streamer_set, cleaned_dict, method):
         streamer_indices = {}
         for streamer in streamer_set:
             streamer_indices[int(streamer)] = len(streamer_indices)
+
+        streamer_indices_file = open('useful_data/streamer_indices.pickle', 'wb')
+        pickle.dump(streamer_indices, streamer_indices_file)
+        streamer_indices_file.close()
 
         # Generate game, list index associations for feature space construction.
         game_indices = {}
