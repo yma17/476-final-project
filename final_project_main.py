@@ -8,7 +8,7 @@ import pickle
 from preprocessing import read_raw_files, read_useful_files, \
     clean_game_names, construct_feature_space
 # from community_detection
-# from clustering
+from clustering import k_means_clustering, cure_clustering
 
 
 def main(argv):
@@ -25,7 +25,8 @@ def main(argv):
             method = arg
         elif opt == "--source":
             source = arg
-    if (method != "community" and method != "clustering") or \
+    if (method != "community" and method != "clustering_cure"
+        and method != "clustering_kmeans") or \
         (source != "raw" and source != "extracted" and
          source != "cleaned"):
         print("Not all parameters are specified")
@@ -49,17 +50,8 @@ def main(argv):
         cleaned_dict = pickle.load(cleaned_dict_file)
         cleaned_dict_file.close()
 
-    # Simple test case
-    # from collections import Counter
-    # streamer_set = {1, 2, 3, 4}
-    # cleaned_dict = {"aaaa": [{1, 2}, Counter([1, 2])],
-    #              "axxa": [{1, 3}, Counter([1, 1, 3])],
-    #              "bbbb": [{2, 3}, Counter([2, 2, 3, 3])],
-    #              "cccc": [{1, 2, 3}, Counter([1, 1, 2, 2, 3, 3])],
-    #              "z": [{1, 2, 4}, Counter({1, 2, 4, 4, 4, 4})]}
+    # X = construct_feature_space(streamer_set, cleaned_dict, method)
 
-    X = construct_feature_space(streamer_set, cleaned_dict, method)
-    # TODO: do louvain or clustering here.
 
 
 if __name__ == '__main__':

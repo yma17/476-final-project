@@ -1,5 +1,6 @@
 """Contains functions to read and preprocess data"""
 
+import sys
 import glob
 import csv
 import pickle
@@ -37,9 +38,12 @@ def read_raw_files():
                 pt_data = data_pt.strip('\n').split('\t')
                 if len(pt_data) == 16:  # check if all fields are present in data point
                     streamer = pt_data[4]
-                    streamer_set.add(streamer)
                     game = pt_data[3].lower()
-                    if game != "-1":
+                    conc_viewers = int(pt_data[1])
+
+                    streamer_set.add(streamer)
+
+                    if game != "-1" and conc_viewers >= 100:
                         if game not in game_set:
                             game_set.add(game)
                             game_dict[game] = [set(), []]  # (set of streamers, list of stream occurrences)
@@ -47,9 +51,6 @@ def read_raw_files():
                         game_dict[game][1].append(streamer)
 
             i += 1
-            # print(str(num_data_pts) + " data points so far")
-            # print(str(len(streamer_set)) + " streamers so far")
-            # print(str(len(game_set)) + " games so far")
             print("Files read: " + str(i) + "/" + str(total_stream_files))  # output updates to user
 
     for game in game_dict.keys():
@@ -97,12 +98,13 @@ def read_useful_files():
 
     game_dict_file = open('useful_data/game_dict.pickle', 'rb')
     game_dict = pickle.load(game_dict_file)
+    game_dict_file.close()
 
     corpus_file = open('useful_data/corpus.txt', 'r')
     corpus_data = corpus_file.readlines()
     game_corpus = set()
     for game in corpus_data:
-        game_corpus.add(game)
+        game_corpus.add(game.strip('\n'))
     corpus_file.close()
 
     return streamer_set, game_dict, game_corpus
@@ -126,7 +128,7 @@ def clean_game_names(game_dict, game_corpus):
 
     # Spell correct remainder of names.
     for name in names_to_clean:
-        if i % 100 == 0:  # output updates to user
+        if i % 10 == 0:  # output updates to user
             print(str(i) + " names cleaned")
         i += 1
 
@@ -144,13 +146,6 @@ def clean_game_names(game_dict, game_corpus):
         cleaned_dict[corrected_name][0].update(game_dict[name][0])
         cleaned_dict[corrected_name][1] += game_dict[name][1]
 
-    # Perform some feature selection to eliminate least relevant games.
-    for name in cleaned_names:
-        if len(cleaned_dict[name][0]) == 1:  # if only one player has played a game
-            del cleaned_dict[name]
-        elif sum(cleaned_dict[name][1].values()) <= 12:  # if a game was never played for more than 1 hour overall
-            del cleaned_dict[name]
-
     cleaned_file = open('useful_data/cleaned_dict.pickle', 'wb')
     pickle.dump(cleaned_dict, cleaned_file)
     cleaned_file.close()
@@ -164,19 +159,26 @@ def construct_feature_space(streamer_set, cleaned_dict, method):
     if method == "community":
         # Feature space:
         X = {}
+        i = 0
         for game, info in cleaned_dict.items():
+            if i == 500:
+                break
+            print(i)
             streamer_comb = combinations(info[0], 2)
             for comb in list(streamer_comb):
                 if comb not in X.keys():
                     X[comb] = 0
                 X[comb] += 1
+            i += 1
 
         new_X = []
         for comb, count in X.items():
             new_X.append((comb[0], comb[1], count))
 
-        # with open('louvain_in.txt', 'w') as fp:
-        #     fp.write('\n'.join('%s %s %s' % x for x in new_X))
+        with open('louvain_in.txt', 'w') as fp:
+            fp.write('\n'.join('%s %s %s' % x for x in new_X))
+
+        print(len(new_X))
 
         return new_X
 
@@ -191,12 +193,11 @@ def construct_feature_space(streamer_set, cleaned_dict, method):
         for game in cleaned_dict.keys():
             game_indices[game] = len(game_indices)
 
-        X = np.zeros((len(streamer_indices), len(game_indices)))
+        X = np.zeros((len(streamer_indices), len(game_indices)), dtype=np.int8)
+        print(sys.getsizeof(X))
         for game, info in cleaned_dict.items():
             for streamer in info[0]:
-                X[streamer_indices[streamer]][game_indices[game]] = 1
-
-        # np.savetxt('clustering_in.txt', X, delimiter=',')
+                X[streamer_indices[int(streamer)]][game_indices[game]] = 1
 
         return X
 
