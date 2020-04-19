@@ -41,9 +41,8 @@ def read_raw_files():
                     game = pt_data[3].lower()
                     conc_viewers = int(pt_data[1])
 
-                    streamer_set.add(streamer)
-
                     if game != "-1" and conc_viewers >= 100:
+                        streamer_set.add(streamer)
                         if game not in game_set:
                             game_set.add(game)
                             game_dict[game] = [set(), []]  # (set of streamers, list of stream occurrences)
@@ -159,34 +158,27 @@ def construct_feature_space(streamer_set, cleaned_dict, method):
     if method == "community":
         # Feature space:
         X = {}
-        i = 0
         for game, info in cleaned_dict.items():
-            if i == 500:
-                break
-            print(i)
             streamer_comb = combinations(info[0], 2)
             for comb in list(streamer_comb):
                 if comb not in X.keys():
                     X[comb] = 0
                 X[comb] += 1
-            i += 1
 
         new_X = []
         for comb, count in X.items():
             new_X.append((comb[0], comb[1], count))
 
-        with open('louvain_in.txt', 'w') as fp:
-            fp.write('\n'.join('%s %s %s' % x for x in new_X))
-
-        print(len(new_X))
+        # with open('useful_data/louvain_in.txt', 'w') as fp:
+        #     fp.write('\n'.join('%s %s %s' % x for x in new_X))
 
         return new_X
 
-    elif method == "clustering":
+    elif method[:11] == "clustering_":
         # Generate streamer, list index associations for feature space construction.
         streamer_indices = {}
         for streamer in streamer_set:
-            streamer_indices[streamer] = len(streamer_indices)
+            streamer_indices[int(streamer)] = len(streamer_indices)
 
         # Generate game, list index associations for feature space construction.
         game_indices = {}
@@ -194,10 +186,12 @@ def construct_feature_space(streamer_set, cleaned_dict, method):
             game_indices[game] = len(game_indices)
 
         X = np.zeros((len(streamer_indices), len(game_indices)), dtype=np.int8)
-        print(sys.getsizeof(X))
         for game, info in cleaned_dict.items():
             for streamer in info[0]:
                 X[streamer_indices[int(streamer)]][game_indices[game]] = 1
+
+        # with open('useful_data/clustering_in.txt', 'w') as fp:
+        #     np.savetxt(fp, X, fmt='%1u')
 
         return X
 

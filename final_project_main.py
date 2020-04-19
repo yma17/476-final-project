@@ -50,7 +50,7 @@ def main(argv):
         cleaned_dict = pickle.load(cleaned_dict_file)
         cleaned_dict_file.close()
 
-    # X = construct_feature_space(streamer_set, cleaned_dict, method)
+    X = construct_feature_space(streamer_set, cleaned_dict, method)
 
 
 
