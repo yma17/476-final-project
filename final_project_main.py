@@ -57,11 +57,9 @@ def main(argv):
         if k == -1:
             print("k not specified")
             sys.exit(1)
-        to_analyze = glob.glob("results/*_" + str(k) + ".pickle")
-        for filename in to_analyze:
-            with open(filename, 'rb') as result_file:
-                result_dict = pickle.load(result_file)
 
+        with open("useful_data/streamer_id_list.pickle", "rb") as streamer_id_list_file:
+            streamer_id_list = pickle.load(streamer_id_list_file)
         with open("results/pca_result.txt", "r") as pca_result_file:
             pca_result = np.loadtxt(pca_result_file, delimiter=' ', dtype=np.int8)
         with open("results/cure_" + str(k) + ".pickle", "rb") as cure_file:
@@ -69,7 +67,7 @@ def main(argv):
         with open("results/k_means_" + str(k) + ".pickle", "rb") as kmeans_file:
             kmeans_result = pickle.load(kmeans_file)
 
-        analyze(pca_result, cure_result, kmeans_result)
+        # analyze(pca_result, cure_result, kmeans_result)
         return
 
 

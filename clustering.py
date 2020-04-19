@@ -37,8 +37,16 @@ def k_means_clustering(X, k=-1):
         kmeans = KMeans(n_clusters=k).fit(X)
         labels = kmeans.labels_
 
+        clusters = []
+        for i in range(k):
+            row = []
+            for j in range(len(labels)):
+                if i == labels[j]:
+                    row.append(j)
+            clusters.append(row)
+
         results_file = open('results/k_means_' + str(k) + '.pickle', 'wb')
-        pickle.dump(labels, results_file)
+        pickle.dump(clusters, results_file)
         results_file.close()
 
         print(str(k) + " clusters completed")
@@ -63,9 +71,9 @@ def cure_clustering(k):
     # visualizer.append_clusters(cure_clusters, input_data)
     # visualizer.show()
 
-
+"""
 def analyze(X, cure_result, kmeans_result):
-    """Analyze results of clustering."""
+    # Analyze results of clustering.
 
     size_dict = {}
     for i in range(len(cure_result)):
@@ -91,3 +99,4 @@ def analyze(X, cure_result, kmeans_result):
         i += 1
 
     plt.show()
+"""

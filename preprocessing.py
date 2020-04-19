@@ -175,12 +175,18 @@ def construct_feature_space(streamer_set, cleaned_dict, method):
     elif method[:11] == "clustering_":
         # Generate streamer, list index associations for feature space construction.
         streamer_indices = {}
+        streamer_id_list = []
         for streamer in streamer_set:
+            streamer_id_list.append(int(streamer))
             streamer_indices[int(streamer)] = len(streamer_indices)
 
         streamer_indices_file = open('useful_data/streamer_indices.pickle', 'wb')
         pickle.dump(streamer_indices, streamer_indices_file)
         streamer_indices_file.close()
+
+        streamer_id_list_file = open('useful_data/streamer_id_list.pickle', 'wb')
+        pickle.dump(streamer_id_list, streamer_id_list_file)
+        streamer_id_list_file.close()
 
         # Generate game, list index associations for feature space construction.
         game_indices = {}
