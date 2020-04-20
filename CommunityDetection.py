@@ -2,7 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.colors as mpcolors
 import community as community_louvain
-from CommunityAnalysis import get_most_played_game
+from CommunityAnalysis import get_most_played_game, composition_analysis
 import pickle
 def main():
 	# Read in Graph: G
@@ -96,7 +96,7 @@ def main():
 	# Draw induced graph top5, 10, 15(node as community) #################################################################################################
 	Ginduced = community_louvain.induced_graph(partition, G, weight='weight')
 	# Remove small commnity nodes (top15) -> (top10) -> (top5)
-	tops = [5, 10, 15]
+	tops = [15, 10, 5]
 	for top in tops:
 		for idx in range(len(order_list))[top:]:
 			node_id = order_list[idx][0]
@@ -142,7 +142,7 @@ def main():
 	# Draw induced graph top5, 10, 15 circularlly(node as community) #################################################################################################
 	Ginduced = community_louvain.induced_graph(partition, G, weight='weight')
 	# Remove small commnity nodes (top15) -> (top10) -> (top5)
-	tops = [5, 10, 15]
+	tops = [15, 10, 5]
 	for top in tops:
 		for idx in range(len(order_list))[top:]:
 			node_id = order_list[idx][0]
@@ -184,5 +184,9 @@ def main():
 	plt.savefig("induced_full_random.png")
 	plt.close()
 	##########################################################################################################################################
+
+	# Compositoin analysis
+	composition_analysis()
+	
 if __name__ == "__main__":
 	main()
