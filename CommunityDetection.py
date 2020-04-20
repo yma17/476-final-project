@@ -48,45 +48,137 @@ def main():
 		f_out.write("\n")
 	f_out.close()
 
-	# # Drawing fully #######################################################################################################################
-	# color_list = list(mpcolors.cnames.values())
-	# pos = nx.spring_layout(G)
-	# count = 0
-	# # Draw nodes
-	# for com in set(partition.values()) :
-	# 	count += 1
-	# 	list_nodes = [nodes for nodes in partition.keys() if partition[nodes] == com]
-	# 	nx.draw_networkx_nodes(G, pos, list_nodes, node_size = 20, node_color = color_list[count], with_labels=True, font_weight='bold')
-	# # Draw labels
-	# nx.draw_networkx_labels(G, pos)
-	# # Draw  edges
-	# nx.draw_networkx_edges(G, pos, alpha=0.5)
-	# plt.show()
-	# # plt.savefig("out.png")
-	########################################################################################################################################
-	
-	# # Draw induced graph(node as community) #################################################################################################
-	# Ginduced = community_louvain.induced_graph(partition, G, weight='weight')
-	# # # Remove small commnity nodes (top15) -> (top10) -> (top5)
-	# # top = 5
-	# # for idx in range(len(order_list))[top:]:
-	# # 	node_id = order_list[idx][0]
-	# # 	Ginduced.remove_node(node_id)
-	
-	# pos = nx.spring_layout(Ginduced)
-	# color_list = list(mpcolors.cnames.values())
-	# # Draw nodes
-	# count = 0
-	# for node in Ginduced.nodes :
-	# 	nx.draw_networkx_nodes(Ginduced, pos, nodelist=[node], node_size = (20 + 2 * community_number_dict[node]), node_color = color_list[count], with_labels=True, font_weight='bold')
-	# 	count += 1
-	# # Draw labels
-	# nx.draw_networkx_labels(Ginduced, pos, alpha=0.5)
-	# # Draw  edges
-	# nx.draw_networkx_edges(Ginduced, pos, alpha=0.5)
-	# plt.show()
-	# # plt.savefig("out.png")
-	# ##########################################################################################################################################
+	# Draw config
+	color_list = list(mpcolors.cnames.values())
 
+	# Drawing fully #######################################################################################################################
+	pos = nx.spring_layout(G)
+	count = 0
+	# Draw nodes
+	for com in set(partition.values()) :
+		count += 1
+		list_nodes = [nodes for nodes in partition.keys() if partition[nodes] == com]
+		nx.draw_networkx_nodes(G, pos, list_nodes, node_size = 20, node_color = color_list[count])
+	# Draw labels
+	# nx.draw_networkx_labels(G, pos)
+	# Draw  edges
+	nx.draw_networkx_edges(G, pos, alpha=0.5)
+	plt.savefig("full.png")
+	plt.close()
+	#######################################################################################################################################
+	
+	# Draw induced graph fully(node as community) #################################################################################################
+	Ginduced = community_louvain.induced_graph(partition, G, weight='weight')
+	# # Remove small commnity nodes (top15) -> (top10) -> (top5)
+	# top = 5
+	# for idx in range(len(order_list))[top:]:
+	# 	node_id = order_list[idx][0]
+	# 	Ginduced.remove_node(node_id)
+	
+	pos = nx.spring_layout(Ginduced)
+	# Draw nodes
+	count = 0
+	for node in Ginduced.nodes :
+		nx.draw_networkx_nodes(Ginduced, pos, nodelist=[node], node_size = (20 + 2 * community_number_dict[node]), node_color = color_list[count])
+		count += 1
+	# Draw labels
+	nx.draw_networkx_labels(Ginduced, pos, alpha=0.5)
+	# Draw  edges
+	nx.draw_networkx_edges(Ginduced, pos, alpha=0.5)
+	plt.savefig("induced_full.png")
+	plt.close()
+	##########################################################################################################################################
+
+	# Draw induced graph top5, 10, 15(node as community) #################################################################################################
+	Ginduced = community_louvain.induced_graph(partition, G, weight='weight')
+	# Remove small commnity nodes (top15) -> (top10) -> (top5)
+	tops = [5, 10, 15]
+	for top in tops:
+		for idx in range(len(order_list))[top:]:
+			node_id = order_list[idx][0]
+			if node_id in Ginduced.nodes:
+				Ginduced.remove_node(node_id)
+		
+		pos = nx.spring_layout(Ginduced)
+		# Draw nodes
+		count = 0
+		for node in Ginduced.nodes :
+			nx.draw_networkx_nodes(Ginduced, pos, nodelist=[node], node_size = (20 + 2 * community_number_dict[node]), node_color = color_list[count])
+			count += 1
+		# Draw labels
+		nx.draw_networkx_labels(Ginduced, pos, alpha=0.5)
+		# Draw  edges
+		nx.draw_networkx_edges(Ginduced, pos, alpha=0.5)
+		plt.savefig("induced_top" + str(top) + ".png")
+		plt.close()
+	##########################################################################################################################################
+
+	# Draw induced graph fully circularlly(node as community) #################################################################################################
+	Ginduced = community_louvain.induced_graph(partition, G, weight='weight')
+	# # Remove small commnity nodes (top15) -> (top10) -> (top5)
+	# top = 5
+	# for idx in range(len(order_list))[top:]:
+	# 	node_id = order_list[idx][0]
+	# 	Ginduced.remove_node(node_id)
+	
+	pos = nx.circular_layout(Ginduced)
+	# Draw nodes
+	count = 0
+	for node in Ginduced.nodes :
+		nx.draw_networkx_nodes(Ginduced, pos, nodelist=[node], node_size = (20 + 2 * community_number_dict[node]), node_color = color_list[count])
+		count += 1
+	# Draw labels
+	nx.draw_networkx_labels(Ginduced, pos, alpha=0.5)
+	# Draw  edges
+	nx.draw_networkx_edges(Ginduced, pos, alpha=0.5)
+	plt.savefig("induced_full_circular.png")
+	plt.close()
+	##########################################################################################################################################
+
+	# Draw induced graph top5, 10, 15 circularlly(node as community) #################################################################################################
+	Ginduced = community_louvain.induced_graph(partition, G, weight='weight')
+	# Remove small commnity nodes (top15) -> (top10) -> (top5)
+	tops = [5, 10, 15]
+	for top in tops:
+		for idx in range(len(order_list))[top:]:
+			node_id = order_list[idx][0]
+			if node_id in Ginduced.nodes:
+				Ginduced.remove_node(node_id)
+		
+		pos = nx.circular_layout(Ginduced)
+		# Draw nodes
+		count = 0
+		for node in Ginduced.nodes :
+			nx.draw_networkx_nodes(Ginduced, pos, nodelist=[node], node_size = (20 + 2 * community_number_dict[node]), node_color = color_list[count])
+			count += 1
+		# Draw labels
+		nx.draw_networkx_labels(Ginduced, pos, alpha=0.5)
+		# Draw  edges
+		nx.draw_networkx_edges(Ginduced, pos, alpha=0.5)
+		plt.savefig("induced_top" + str(top) + "_circular.png")
+		plt.close()
+	##########################################################################################################################################
+
+	# Draw induced graph fully randomly(node as community) #################################################################################################
+	Ginduced = community_louvain.induced_graph(partition, G, weight='weight')
+	# # Remove small commnity nodes (top15) -> (top10) -> (top5)
+	# top = 5
+	# for idx in range(len(order_list))[top:]:
+	# 	node_id = order_list[idx][0]
+	# 	Ginduced.remove_node(node_id)
+	
+	pos = nx.random_layout(Ginduced)
+	# Draw nodes
+	count = 0
+	for node in Ginduced.nodes :
+		nx.draw_networkx_nodes(Ginduced, pos, nodelist=[node], node_size = (20 + 2 * community_number_dict[node]), node_color = color_list[count])
+		count += 1
+	# Draw labels
+	nx.draw_networkx_labels(Ginduced, pos, alpha=0.5)
+	# Draw  edges
+	nx.draw_networkx_edges(Ginduced, pos, alpha=0.5)
+	plt.savefig("induced_full_random.png")
+	plt.close()
+	##########################################################################################################################################
 if __name__ == "__main__":
 	main()
