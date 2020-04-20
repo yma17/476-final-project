@@ -68,6 +68,7 @@ def main(argv):
         with open("results/k_means_" + str(k) + ".pickle", "rb") as kmeans_file:
             kmeans_result = pickle.load(kmeans_file)
 
+
         # visualize(pca_result, cure_result, kmeans_result, streamer_id_list)
         games_per_cluster(cure_result, kmeans_result, streamer_id_list)
         return
