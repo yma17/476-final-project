@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mpcolors
 import community as community_louvain
 from CommunityAnalysis import get_most_played_game
+import pickle
 def main():
 	# Read in Graph: G
 	G = nx.Graph()
@@ -33,7 +34,10 @@ def main():
 
 	order_list = sorted(community_number_dict.items(), key=lambda x: x[1])
 	order_list.reverse()
-	
+	community_dict_file = open('community_result.pickle', 'wb')
+	pickle.dump(community_dict, community_dict_file)
+	community_dict_file.close()
+
 	# Print Partition result txt
 	f_out = open("louvain_result", "w")
 	f_out.write("num_community: %s\n"%(str(num_set)))
