@@ -9,7 +9,8 @@ import numpy as np
 from preprocessing import read_raw_files, read_useful_files, \
     clean_game_names, construct_feature_space
 # from community_detection
-from clustering import dim_reduction, k_means_clustering, cure_clustering, analyze
+from clustering import dim_reduction, k_means_clustering, cure_clustering, \
+    visualize, games_per_cluster
 
 
 def main(argv):
@@ -67,9 +68,9 @@ def main(argv):
         with open("results/k_means_" + str(k) + ".pickle", "rb") as kmeans_file:
             kmeans_result = pickle.load(kmeans_file)
 
-        # analyze(pca_result, cure_result, kmeans_result)
+        # visualize(pca_result, cure_result, kmeans_result, streamer_id_list)
+        games_per_cluster(cure_result, kmeans_result, streamer_id_list)
         return
-
 
     if method == "none":
         pass
