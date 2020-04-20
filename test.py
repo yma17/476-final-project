@@ -74,11 +74,11 @@ for i in range(10, 1000, 30):
 
 """
 
-
+"""
 cleaned_dict_file = open('useful_data/cleaned_dict.pickle', 'rb')
 cleaned_dict = pickle.load(cleaned_dict_file)
 print(len(cleaned_dict))
-
+"""
 
 """
 import glob
@@ -134,3 +134,68 @@ for j in game_corpus:
 # cleaned_names = set(game_dict.keys()).intersection(game_corpus)
 # print(len(cleaned_names))
 """
+
+"""
+import time
+from random import seed
+from random import random
+from sklearn.cluster import MiniBatchKMeans, KMeans
+import numpy as np
+import sys
+from pyclustering.cluster.cure import cure
+from pyclustering.utils import read_sample
+
+X = np.zeros((10000, 1000), dtype=np.int8)
+print(sys.getsizeof(X))
+seed(1)
+for i in range(10000):
+    if i % 10 == 0:
+        print(i)
+    for j in range(1000):
+        k = random()
+        if k < 0.05:
+            X[i][j] = 1
+
+time1 = time.perf_counter()
+cure_instance = cure(read_sample(X.tolist()), i)
+cure_instance.process()
+cure_clusters = cure_instance.get_clusters()
+time2 = time.perf_counter()
+print("For " + str(i) + " clusters: ")
+print(time2 - time1)
+print("")
+"""
+
+"""
+from pyclustering.cluster import cluster_visualizer;
+from pyclustering.cluster.cure import cure;
+from pyclustering.utils import read_sample;
+from pyclustering.samples.definitions import FCPS_SAMPLES;
+
+# Input data in following format [ [0.1, 0.5], [0.3, 0.1], ... ].
+input_data = read_sample(FCPS_SAMPLES.SAMPLE_LSUN);
+print(input_data)
+
+# Allocate three clusters.
+cure_instance = cure(input_data, 3);
+cure_instance.process();
+clusters = cure_instance.get_clusters();
+
+# Visualize allocated clusters.
+visualizer = cluster_visualizer();
+visualizer.append_clusters(clusters, input_data);
+visualizer.show();
+"""
+
+"""
+str_p = "["
+with open('test.txt', 'r') as fp:
+    f = fp.readlines()
+    for g in f:
+        h = g.strip('\n')
+        if len(h) > 0:
+            str_p += h.split(' ')[3]
+        str_p += ", "
+print(str_p[:-2] + "]")
+"""
+
