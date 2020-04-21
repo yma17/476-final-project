@@ -80,31 +80,7 @@ def read_raw_files():
     pickle.dump(game_dict, game_dict_file)
     game_dict_file.close()
 
-    return streamer_set, game_dict, game_corpus
-
-
-def read_useful_files():
-    """Read most useful data extracted from raw data."""
-
-    streamer_file = open('useful_data/streamer.txt', 'r')
-    streamer_data = streamer_file.readlines()
-    streamer_set = set()  # set of unique streamers
-    for streamer in streamer_data:
-        streamer_set.add(streamer)
-    streamer_file.close()
-
-    game_dict_file = open('useful_data/game_dict.pickle', 'rb')
-    game_dict = pickle.load(game_dict_file)
-    game_dict_file.close()
-
-    corpus_file = open('useful_data/corpus.txt', 'r')
-    corpus_data = corpus_file.readlines()
-    game_corpus = set()
-    for game in corpus_data:
-        game_corpus.add(game.strip('\n'))
-    corpus_file.close()
-
-    return streamer_set, game_dict, game_corpus
+    return game_dict, game_corpus
 
 
 def clean_game_names(game_dict, game_corpus):
@@ -146,8 +122,6 @@ def clean_game_names(game_dict, game_corpus):
     cleaned_file = open('useful_data/cleaned_dict.pickle', 'wb')
     pickle.dump(cleaned_dict, cleaned_file)
     cleaned_file.close()
-
-    return cleaned_dict
 
 
 def construct_feature_space(streamer_set, cleaned_dict, method):

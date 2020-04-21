@@ -4,7 +4,7 @@ import matplotlib.colors as mpcolors
 import community as community_louvain
 from CommunityAnalysis import get_most_played_game, composition_analysis
 import pickle
-def main():
+def community_detection():
 	# Read in Graph: G
 	G = nx.Graph()
 	# G.add_edges_from([(1, 2,{"weight": 1}), (1, 3,{"weight": 1}), (2, 3,{"weight": 1}), (3, 7,{"weight": 10}), (7, 8,{"weight": 1}), (1, 2,{"weight": 1}) ,
@@ -189,4 +189,4 @@ def main():
 	composition_analysis()
 	
 if __name__ == "__main__":
-	main()
+	community_detection()

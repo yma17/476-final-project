@@ -35,6 +35,7 @@ def k_means_clustering(X, k=-1):
         end = k + 1
 
     for k in range(begin, end, 5):
+        print(str(k) + " clusters started for k-means")
         kmeans = KMeans(n_clusters=k).fit(X)
         labels = kmeans.labels_
 
@@ -50,29 +51,38 @@ def k_means_clustering(X, k=-1):
         pickle.dump(clusters, results_file)
         results_file.close()
 
-        print(str(k) + " clusters completed")
+        print(str(k) + " clusters completed. Score: " + str(kmeans.score(X)))
 
 
-def cure_clustering(k):
+def cure_clustering(k=-1):
     """Perform CURE clustering algorithm."""
+
+    if k == -1:
+        begin = 5
+        end = 1001
+    else:
+        begin = k
+        end = k + 1
 
     input_data = read_sample("results/pca_result.txt")
 
-    print(str(k) + " clusters started for CURE")
-    cure_instance = cure(input_data, k)
-    cure_instance.process()
-    cure_clusters = cure_instance.get_clusters()
-    print(str(k) + " clusters completed for CURE")
+    for k in range(begin, end, 5):
+        print(str(k) + " clusters started for CURE")
+        cure_instance = cure(input_data, k)
+        cure_instance.process()
+        cure_clusters = cure_instance.get_clusters()
+        print(str(k) + " clusters completed for CURE")
 
-    results_file = open('results/cure_' + str(k) + '.pickle', 'wb')
-    pickle.dump(cure_clusters, results_file)
-    results_file.close()
+        results_file = open('results/cure_' + str(k) + '.pickle', 'wb')
+        pickle.dump(cure_clusters, results_file)
+        results_file.close()
 
 
-def visualize(pca_result, cure_result, kmeans_result, streamer_id_list):
+def visualize(k, pca_result, cure_result, kmeans_result, streamer_id_list):
     """Visualize results of clustering."""
 
     # Visualize results of CURE algorithm first.
+    print("Visualizing results for CURE algorithm for k=" + str(k) + " (wait for plot to generate)")
 
     size_dict = {}
     for i in range(len(cure_result)):
@@ -89,6 +99,11 @@ def visualize(pca_result, cure_result, kmeans_result, streamer_id_list):
         for streamer in cure_result[value]:
             cluster_pts.append(pca_result[streamer])
         cluster_pts = np.array(cluster_pts)
+
+        if len(cluster_pts) == 1:  # at least 2 points in cluster required for t-SNE
+            i += 1
+            continue
+
         cure_embedded = TSNE(n_components=2).fit_transform(cluster_pts)
         label = "cluster " + str(value) + ": " + str(key)
         plt.scatter(cure_embedded[:,0], cure_embedded[:,1],
@@ -96,13 +111,14 @@ def visualize(pca_result, cure_result, kmeans_result, streamer_id_list):
                     label=label)
         i += 1
 
-    plt.title("t-SNE visualization of CURE algorithm results")
+    plt.title("t-SNE visualization of CURE algorithm results (k=" + str(k) + ")")
     plt.legend(scatterpoints=1)
     plt.grid()
     plt.show()
     plt.clf()
 
     # Then, visualize results of k-means algorithm.
+    print("Visualizing results for k-means algorithm for k=" + str(k) + " (wait for plot to generate)")
 
     size_dict = {}
     for i in range(len(kmeans_result)):
@@ -121,6 +137,11 @@ def visualize(pca_result, cure_result, kmeans_result, streamer_id_list):
         for streamer in kmeans_result[value]:
             cluster_pts.append(pca_result[streamer])
         cluster_pts = np.array(cluster_pts)
+
+        if len(cluster_pts) == 1:  # at least 2 points in cluster required for t-SNE
+            i += 1
+            continue
+
         cure_embedded = TSNE(n_components=2).fit_transform(cluster_pts)
         label = "cluster " + str(value) + ": " + str(key)
         plt.scatter(cure_embedded[:, 0], cure_embedded[:, 1],
@@ -128,16 +149,18 @@ def visualize(pca_result, cure_result, kmeans_result, streamer_id_list):
                     label=label)
         i += 1
 
-    plt.title("t-SNE visualization of k-means algorithm results")
+    plt.title("t-SNE visualization of k-means algorithm results (k=" + str(k) + ")")
     plt.legend(scatterpoints=1)
     plt.grid()
     plt.show()
 
 
-def games_per_cluster(cure_result, kmeans_result, streamer_id_list):
+def games_per_cluster(k, cure_result, kmeans_result, streamer_id_list):
     """Identify the most popular games played per cluster."""
 
     # First, CURE.
+    print("Writing games per cluster for CURE algorithm (results/cure_cluster_games_" + str(k) + ".txt")
+
     cure_dict = {}
     cure_number_dict = {}
     for i in range(len(cure_result)):
@@ -149,7 +172,7 @@ def games_per_cluster(cure_result, kmeans_result, streamer_id_list):
     order_list = sorted(cure_number_dict.items(), key=lambda x: x[1])
     order_list.reverse()
 
-    cure_out = open("results/cure_cluster_games.txt", "w")
+    cure_out = open("results/cure_cluster_games_" + str(k) + ".txt", "w")
     for cluster in order_list:
         id = cluster[0]
         size = cluster[1]
@@ -163,6 +186,7 @@ def games_per_cluster(cure_result, kmeans_result, streamer_id_list):
     cure_out.close()
 
     # Then, k-means.
+    print("Writing games per cluster for kmeans algorithm (results/cure_cluster_games_" + str(k) + ".txt")
 
     kmeans_dict = {}
     kmeans_number_dict = {}
@@ -175,7 +199,7 @@ def games_per_cluster(cure_result, kmeans_result, streamer_id_list):
     order_list = sorted(kmeans_number_dict.items(), key=lambda x: x[1])
     order_list.reverse()
 
-    kmeans_out = open("results/kmeans_cluster_games.txt", "w")
+    kmeans_out = open("results/kmeans_cluster_games_" + str(k) + ".txt", "w")
     for cluster in order_list:
         id = cluster[0]
         size = cluster[1]
