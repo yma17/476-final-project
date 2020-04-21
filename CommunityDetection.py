@@ -40,6 +40,8 @@ def community_detection():
 
 	# Print Partition result txt
 	f_out = open("louvain_result", "w")
+	modularity = community_louvain.modularity(partition, G, weight='weight')
+	f_out.write("modularity: %s\n"%(str(modularity)))
 	f_out.write("num_community: %s\n"%(str(num_set)))
 	for community in order_list:
 		id = community[0]
@@ -51,6 +53,7 @@ def community_detection():
 			f_out.write(" " + str(member) )
 		f_out.write("\n")
 	f_out.close()
+	print("finish louvain_result")
 
 	# Draw config
 	color_list = list(mpcolors.cnames.values())

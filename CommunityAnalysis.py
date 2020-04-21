@@ -20,11 +20,11 @@ def get_most_played_game(streamer_list, top):
 def composition_analysis():
 	with open("useful_data/streamer_id_list.pickle", "rb") as streamer_id_list_file:
 		streamer_id_list = list(pickle.load(streamer_id_list_file) )
-	with open("results/cure_" + str(130) + ".pickle", "rb") as cure_file:
+	with open("results/cure_" + str(500) + ".pickle", "rb") as cure_file:
 		cure_result = list(pickle.load(cure_file) )
 	with open("results/k_means_" + str(130) + ".pickle", "rb") as kmeans_file:
 		kmeans_result = list(pickle.load(kmeans_file) )
-	with open("community_result.pickle", "rb") as community_file:
+	with open("community_result/community_result.pickle", "rb") as community_file:
 		community_dict = pickle.load(community_file)
 	
 	# Filled cure_clusters with streamer ID
